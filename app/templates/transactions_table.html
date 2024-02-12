@@ -1,0 +1,32 @@
+<div class="overflow-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Transação</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Prevista</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dia do Pagamento</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recorrência</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Previsto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Pago</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for transaction in transactions %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.transaction_type }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.category }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.details }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.expected_date|formatdate }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.payday|formatdate }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.recurrence }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.expected_value }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.paid_value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

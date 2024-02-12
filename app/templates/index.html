@@ -1,47 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
-    <title>MyFi</title>
+{% block title %}
+MyFi
+{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-
-<body>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Details</th>
-                <th>Expected Date</th>
-                <th>Payday</th>
-                <th>Recurrence</th>
-                <th>Expected Value</th>
-                <th>Paid Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for transaction in transactions %}
-            <tr>
-                <td>{{ transaction.name }}</td>
-                <td>{{ transaction.category }}</td>
-                <td>{{ transaction.details }}</td>
-                <td>{{ transaction.expected_date }}</td>
-                <td>{{ transaction.payday }}</td>
-                <td>{{ transaction.recurrence }}</td>
-                <td>{{ transaction.expected_value }}</td>
-                <td>{{ transaction.paid_value }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
-</body>
-
-</html>
+{% block content %}
+{% include 'transactions_table_header.html' %}
+{% include 'transactions_table.html' %}
+{% include 'prev_next_buttons.html' %}
+{% endblock %}

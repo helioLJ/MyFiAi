@@ -1,0 +1,69 @@
+<div id="transactionModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen min-w-full bg-black/30">
+        <div class=" bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <form id="transactionForm" action="/transaction" method="POST" class="space-y-4">
+                    <div class="flex flex-col">
+                        <label for="name" class="mb-2">Nome</label>
+                        <input type="text" id="name" name="name" required class="border-2 border-gray-300 p-2 rounded-md">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="transaction_type" class="mb-2">Tipo de Transação</label>
+                        <select id="transaction_type" name="transaction_type" required class="border-2 border-gray-300 p-2 rounded-md">
+                            <option value="">Selecione um tipo de transação</option>
+                            <option value="Renda">Renda</option>
+                            <option value="Despesa">Despesa</option>
+                            <option value="Ativo">Ativo</option>
+                            <option value="Passivo">Passivo</option>
+                        </select>
+                    </div>
+                    <!-- <div class="flex flex-col">
+                        <label for="category" class="mb-2">Categoria</label>
+                        <select id="category" name="category" required class="border-2 border-gray-300 p-2 rounded-md">
+                        </select>
+                    </div> -->
+                    <div class="flex flex-col">
+                        <label for="details" class="mb-2">Detalhes</label>
+                        <input type="text" id="details" name="details" class="border-2 border-gray-300 p-2 rounded-md">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="expected_date" class="mb-2">Data Prevista</label>
+                        <input type="date" id="expected_date" name="expected_date" required class="border-2 border-gray-300 p-2 rounded-md">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="payday" class="mb-2">Dia do Pagamento</label>
+                        <input type="date" id="payday" name="payday" required class="border-2 border-gray-300 p-2 rounded-md">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="recurrence" class="mb-2">Recorrência</label>
+                        <select id="recurrence" name="recurrence" class="border-2 border-gray-300 p-2 rounded-md">
+                            <option value="">Selecione um tipo de recorrência</option>
+                            <option value="Diária">Diária</option>
+                            <option value="Semanal">Semanal</option>
+                            <option value="Mensal">Mensal</option>
+                            <option value="Anual">Anual</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="expected_value" class="mb-2">Valor Previsto</label>
+                        <input type="number" id="expected_value" name="expected_value" step="0.01" required class="border-2 border-gray-300 p-2 rounded-md">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="paid_value" class="mb-2">Valor Pago</label>
+                        <input type="number" id="paid_value" name="paid_value" step="0.01" required class="border-2 border-gray-300 p-2 rounded-md">
+                    </div>
+
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm" id="saveButton">
+                            Salvar mudanças
+                        </button>
+
+                        <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm" id="closeModalButton">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

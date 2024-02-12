@@ -4,6 +4,7 @@ from datetime import datetime
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
+    transaction_type = db.Column(db.String(120), nullable=False)
     category = db.Column(db.String(120), nullable=False)
     details = db.Column(db.String(120), nullable=False)
     expected_date = db.Column(db.DateTime, nullable=False)

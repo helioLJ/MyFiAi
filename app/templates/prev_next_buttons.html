@@ -1,0 +1,4 @@
+<div class="flex justify-center gap-4 h-8 mt-2">
+    <a href="{{ prev_url or '#' }}" class="{{ 'bg-blue-500 hover:bg-blue-700' if prev_url else 'bg-blue-200' }} text-white font-bold py-2 px-4 rounded flex items-center" {{ 'disabled' if not prev_url }}>Anterior</a>
+    <a href="{{ next_url or '#' }}" class="{{ 'bg-blue-500 hover:bg-blue-700' if next_url else 'bg-blue-200' }} text-white font-bold py-2 px-4 rounded flex items-center" {{ 'disabled' if not next_url }}>Próximo</a>
+</div>

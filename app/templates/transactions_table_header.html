@@ -1,0 +1,17 @@
+<div class="mb-4 flex justify-between items-center">
+    <h1 class="font-bold text-2xl">Transações</h1>
+
+    <div class="w-56">
+        <label for="month" class="block text-sm font-medium text-gray-700">Selecione o mês</label>
+        <select id="month" name="month" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onchange="location = this.value;">
+            {% set month_names = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"] %}
+            {% for month_name in month_names %}
+            <option value="{{ url_for('index', month=loop.index) }}" {% if loop.index == current_month %}selected{% endif %}>{{ month_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button id="openModalButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Adicionar transação
+    </button>
+</div>
