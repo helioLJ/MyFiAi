@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyFi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+    <form action="{{ url_for('new_transaction') }}" method="post">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="category">Category:</label><br>
+        <input type="text" id="category" name="category"><br>
+        <label for="details">Details:</label><br>
+        <input type="text" id="details" name="details"><br>
+        <label for="expected_date">Expected Date:</label><br>
+        <input type="date" id="expected_date" name="expected_date"><br>
+        <label for="payday">Payday:</label><br>
+        <input type="date" id="payday" name="payday"><br>
+        <label for="recurrence">Recurrence:</label><br>
+        <input type="text" id="recurrence" name="recurrence"><br>
+        <label for="expected_value">Expected Value:</label><br>
+        <input type="number" id="expected_value" name="expected_value"><br>
+        <label for="paid_value">Paid Value:</label><br>
+        <input type="number" id="paid_value" name="paid_value"><br>
+        <input type="submit" value="Submit">
+    </form>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>
