@@ -11,4 +11,4 @@ db.init_app(app)  # Initialize the db object
 with app.app_context():
     db.create_all()
 
-from app.routes import index_route
+from app.routes import transaction
