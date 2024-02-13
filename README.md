@@ -1,3 +1,9 @@
+- [ ] Opção de baixar lista de transações do mês
+- [ ] Dashboards e gráficos com transações
+- [ ] Insights com IA
+- [ ] Chat com dados de transações
+- [ ] Desativar "Valor Pago" caso seja "Transação Projetada"
+
 
 1. Input transactions in a frontend, it could be:
     - Dedicated Front-end (react, vite, axios)
