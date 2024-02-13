@@ -1,18 +1,58 @@
 document.addEventListener('DOMContentLoaded', setDefaultDates);
-document.getElementById('openModalButton').addEventListener('click', openModal);
-document.getElementById('closeModalButton').addEventListener('click', closeModal);
+
 document.getElementById('transactionForm').addEventListener('submit', validateForm);
 document.addEventListener('DOMContentLoaded', setupTransactionTypeField);
 
-document.getElementById('isProjected').addEventListener('change', function() {
-    let paydayField = document.getElementById('payday');
-    paydayField.disabled = this.checked;
-    if (this.checked) {
-        paydayField.value = '';
-    } else {
-        paydayField.value = new Date().toISOString().slice(0, 10);
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    
+    document.getElementById('isProjected').addEventListener('change', function() {
+        let paydayField = document.getElementById('payday');
+        paydayField.disabled = this.checked;
+        if (this.checked) {
+            paydayField.value = null;
+        } else {
+            paydayField.value = new Date().toISOString().slice(0, 10);
+        }
+    });
 });
+
+window.onload = function() {
+    var transactionTypeSelect = document.getElementById('transaction_type');
+    var paidValueInput = document.getElementById('paid_value');
+    var expectedValueInput = document.getElementById('expected_value');
+
+    transactionTypeSelect.addEventListener('change', function() {
+        if (this.value === 'Renda') {
+            paidValueInput.style.borderColor = '#22c55e';
+            expectedValueInput.style.borderColor = '#22c55e';
+        } if (this.value === 'Despesa') {
+            paidValueInput.style.borderColor = '#ef4444';
+            expectedValueInput.style.borderColor = '#ef4444';
+        } if (this.value === 'Ativo') {
+            paidValueInput.style.borderColor = '#3b82f6';
+            expectedValueInput.style.borderColor = '#3b82f6';
+        } if (this.value === 'Passivo') {
+            paidValueInput.style.borderColor = '#f97316';
+            expectedValueInput.style.borderColor = '#f97316';
+        }
+    });
+
+    // var tableRows = document.querySelectorAll('tbody tr');
+
+    // tableRows.forEach(function(row) {
+    //     var transactionType = row.children[1].textContent;
+
+    //     if (transactionType === 'Renda') {
+    //         row.style.backgroundColor = '#dcfce7';
+    //     } else if (transactionType === 'Despesa') {
+    //         row.style.backgroundColor = '#fee2e2';
+    //     } else if (transactionType === 'Ativo') {
+    //         row.style.backgroundColor = '#dbeafe';
+    //     } else if (transactionType === 'Passivo') {
+    //         row.style.backgroundColor = '#ffedd5';
+    //     }
+    // });
+}
 
 function setDefaultDates() {
     let today = new Date().toISOString().slice(0, 10);
@@ -28,12 +68,37 @@ function setDefaultDates() {
     }
 }
 
-function openModal() {
-    document.getElementById('transactionModal').classList.remove('hidden');
+document.getElementById('openAddModalButton').addEventListener('click', openAddModal);
+document.getElementById('closeAddModalButton').addEventListener('click', closeAddModal);
+
+function openAddModal() {
+    document.getElementById('addTransactionModal').classList.remove('hidden');
 }
 
-function closeModal() {
-    document.getElementById('transactionModal').classList.add('hidden');
+function closeAddModal() {
+    document.getElementById('addTransactionModal').classList.add('hidden');
+}
+
+document.getElementById('closeEditModalButton').addEventListener('click', closeEditModal);
+
+function openEditModal(id, name, transactionType, category, details, expectedDate, payday, recurrence, expectedValue, paidValue) {
+    document.getElementById('editTransactionModal').classList.remove('hidden');
+    document.getElementById('editTransactionForm').action = '/edit/' + id;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_transaction_type').value = transactionType;
+    document.getElementById('edit_category').value = category;
+    document.getElementById('edit_details').value = details;
+    expectedDate = expectedDate.split(' ')[0];
+    payday = payday.split(' ')[0];
+    document.getElementById('edit_expected_date').value = expectedDate;
+    document.getElementById('edit_payday').value = payday;
+    document.getElementById('edit_recurrence').value = recurrence;
+    document.getElementById('edit_expected_value').value = expectedValue;
+    document.getElementById('edit_paid_value').value = paidValue;
+}
+
+function closeEditModal() {
+    document.getElementById('editTransactionModal').classList.add('hidden');
 }
 
 function validateForm(event) {
@@ -52,6 +117,9 @@ function setupTransactionTypeField() {
     const transactionTypeField = document.querySelector("#transaction_type");
     const categoryField = document.querySelector("#category");
 
+    const editTransactionTypeField = document.querySelector("#edit_transaction_type");
+    const editCategoryField = document.querySelector("#edit_category");
+
     const categories = {
         "Renda": ["", "Salário", "Freelance", "Renda Extra", "Aluguel de Propriedades", "Dividendos de Investimentos", "Prêmios e Bônus", "Pensão", "Vendas de Ativos", "Consultoria", "Comissões", "Juros de Empréstimos"],
         "Despesa": ["", "Aluguel/Moradia", "Alimentação", "Transporte", "Saúde", "Educação", "Entretenimento", "Utilidades (água, eletricidade, gás)", "Telefonia/Internet", "Seguros", "Impostos", "Roupas e Acessórios", "Doações", "Viagens", "Manutenção do Veículo", "Restaurantes", "Manutenção Residencial", "Segurança Residencial", "Serviços de Streaming", "Material de Escritório", "Cuidados com Animais de Estimação", "Beleza e Cuidados Pessoais", "Despesas Bancárias", "Educação Continuada", "Equipamentos Eletrônicos", "Hobbies e Passatempos", "Crianças (Despesas relacionadas a filhos)", "Saúde e Bem-Estar", "Assinaturas de Revistas/Jornais", "Taxas de Associações/Clubes", "Despesas de Emergência"],
@@ -61,6 +129,10 @@ function setupTransactionTypeField() {
 
     transactionTypeField.addEventListener('change', function() {
         populateCategoryField(transactionTypeField, categoryField, categories);
+    });
+
+    editTransactionTypeField.addEventListener('change', function() {
+        populateCategoryField(editTransactionTypeField, editCategoryField, categories);
     });
 }
 
@@ -78,3 +150,4 @@ function populateCategoryField(transactionTypeField, categoryField, categories) 
         categoryField.add(option);
     });
 }
+

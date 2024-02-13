@@ -1,17 +1,31 @@
 <div class="mb-4 flex justify-between items-center">
     <h1 class="font-bold text-2xl">Transações</h1>
 
-    <div class="w-56">
-        <label for="month" class="block text-sm font-medium text-gray-700">Selecione o mês</label>
-        <select id="month" name="month" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onchange="location = this.value;">
-            {% set month_names = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"] %}
-            {% for month_name in month_names %}
-            <option value="{{ url_for('index', month=loop.index) }}" {% if loop.index == current_month %}selected{% endif %}>{{ month_name }}</option>
-            {% endfor %}
-        </select>
+    <div class="flex items-center gap-6">
+        <div class="w-56">
+            <label for="month" class="block text-sm font-medium text-gray-700">Selecione o mês</label>
+            <select id="month" name="month" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onchange="location = this.value;">
+                {% set month_names = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"] %}
+                {% for month_name in month_names %}
+                <option value="{{ url_for('index', month=loop.index) }}" {% if loop.index == current_month %}selected{% endif %}>{{ month_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="w-56">
+            <label for="sort" class="block text-sm font-medium text-gray-700">Ordenar por</label>
+            <select id="sort" name="sort" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onchange="location = this.value;">
+                <option value="{{ url_for('index') }}"></option>
+                <option value="{{ url_for('index', sort='transaction_type') }}" {{ 'selected' if request.args.get('sort') == 'transaction_type' else '' }}>Tipo de Transação</option>
+                <option value="{{ url_for('index', sort='payday') }}" {{ 'selected' if request.args.get('sort') == 'payday' else '' }}>Dia do Pagamento</option>
+                <option value="{{ url_for('index', sort='expected_date') }}" {{ 'selected' if request.args.get('sort') == 'expected_date' else '' }}>Data Esperada</option>
+                <option value="{{ url_for('index', sort='paid_value') }}" {{ 'selected' if request.args.get('sort') == 'paid_value' else '' }}>Valor Pago</option>
+                <option value="{{ url_for('index', sort='expected_value') }}" {{ 'selected' if request.args.get('sort') == 'expected_value' else '' }}>Valor Esperado</option>
+            </select>
+        </div>
     </div>
 
-    <button id="openModalButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    <button id="openAddModalButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
         Adicionar transação
     </button>
 </div>

@@ -1,5 +1,4 @@
 from . import db
-from datetime import datetime
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -8,7 +7,7 @@ class Transaction(db.Model):
     category = db.Column(db.String(120), nullable=False)
     details = db.Column(db.String(120), nullable=False)
     expected_date = db.Column(db.DateTime, nullable=True)
-    payday = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+    payday = db.Column(db.DateTime, nullable=True)
     recurrence = db.Column(db.String(120), nullable=False)
     expected_value = db.Column(db.Float, nullable=False)
     paid_value = db.Column(db.Float, nullable=False)

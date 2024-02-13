@@ -1,16 +1,17 @@
-<div class="overflow-auto">
+<div class="overflow-auto rounded-xl">
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Transação</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Prevista</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dia do Pagamento</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recorrência</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Previsto</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Pago</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Transação</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Prevista</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dia do Pagamento</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Previsto</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Pago</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recorrência</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -22,9 +23,15 @@
                 <td class="px-6 py-4 whitespace-nowrap">{{ transaction.details }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ transaction.expected_date|formatdate }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ transaction.payday|formatdate }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">R$ {{ transaction.expected_value }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">R$ {{ transaction.paid_value }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ transaction.recurrence }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.expected_value }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.paid_value }}</td>
+                <td class="px-6 py-4 whitespace-nowrap"> 
+                    <button onclick="openEditModal('{{ transaction.id }}', '{{ transaction.name }}', '{{ transaction.transaction_type }}', '{{ transaction.category }}', '{{ transaction.details }}', '{{ transaction.expected_date }}', '{{ transaction.payday }}', '{{ transaction.recurrence }}', '{{ transaction.expected_value }}', '{{ transaction.paid_value }}')" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Editar
+                    </button>
+                    <a href="{{ url_for('delete', id=transaction.id) }}" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Deletar</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

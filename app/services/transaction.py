@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from flask import request, url_for
+from flask import request, url_for, flash
+from sqlalchemy import asc, desc
 from openai import OpenAI
 
 from ..models import Transaction, db
@@ -11,12 +12,23 @@ def get_month_transactions():
     page = request.args.get('page', 1, type=int)
     per_page = 30  # Change this to the number of items you want per page
     month = request.args.get('month', datetime.now().month, type=int)
+    sort = request.args.get('sort', 'expected_date', type=str)
     if month is None:
         month = datetime.now().month
-    transactions = Transaction.query.filter(db.extract('month', Transaction.payday) == month)
+    transactions = Transaction.query.filter(db.extract('month', Transaction.expected_date) == month)
+    if sort == 'transaction_type':
+        transactions = transactions.order_by(desc(Transaction.transaction_type))
+    elif sort == 'payday':
+        transactions = transactions.order_by(desc(Transaction.payday))
+    elif sort == 'expected_date':
+        transactions = transactions.order_by(Transaction.expected_date)
+    elif sort == 'paid_value':
+        transactions = transactions.order_by(desc(Transaction.paid_value))
+    elif sort == 'expected_value':
+        transactions = transactions.order_by(desc(Transaction.expected_value))
     paginated_transactions = transactions.paginate(page=page, per_page=per_page, error_out=False)
-    next_url = url_for('index', page=paginated_transactions.next_num, month=month) if paginated_transactions.has_next else None
-    prev_url = url_for('index', page=paginated_transactions.prev_num, month=month) if paginated_transactions.has_prev else None
+    next_url = url_for('index', page=paginated_transactions.next_num, month=month, sort=sort) if paginated_transactions.has_next else None
+    prev_url = url_for('index', page=paginated_transactions.prev_num, month=month, sort=sort) if paginated_transactions.has_prev else None
     return paginated_transactions.items, next_url, prev_url, month
 
 def insert_transaction():
@@ -25,23 +37,35 @@ def insert_transaction():
         category = request.form.get('category')
         transaction_type = request.form.get('transaction_type')
         details = request.form.get('details')
+
         expected_date = datetime.strptime(request.form.get('expected_date'), '%Y-%m-%d')
-        expected_date_str = request.form.get('payday')
+        expected_date_str = request.form.get('expected_date')
         if expected_date_str is not None:
             expected_date = datetime.strptime(expected_date_str, '%Y-%m-%d')
         else:
             expected_date = None
-        payday_str = request.form.get('payday')
-        if payday_str is not None:
-            payday = datetime.strptime(payday_str, '%Y-%m-%d')
-        else:
-            payday = None
+
+        isProjected = request.form.get('isProjected')
+        payday = None
+        if isProjected is None:
+            payday_str = request.form.get('payday')
+            if payday_str is not None:
+                payday = datetime.strptime(payday_str, '%Y-%m-%d')
+
         recurrence = request.form.get('recurrence')
         expected_value = float(request.form.get('expected_value'))
         paid_value = float(request.form.get('paid_value'))
 
+        if transaction_type == 'Renda':
+            paid_value = abs(paid_value)
+            expected_value = abs(expected_value)
+        else:
+            paid_value = -abs(paid_value)
+            expected_value = -abs(expected_value)
+
         if not category:
-            category = define_category(transaction_type, name)
+            # category = define_category(transaction_type, name)
+            category = "IA..."
 
         new_transaction = Transaction(
             name=name,
@@ -160,6 +184,7 @@ def define_category(transaction_type, transaction_name):
             {"role": "system", "content": f"""
              Você vai receber uma transação e uma lista de categorias, escolha a categoria que melhor se encaixa na transação.
              Caso não encontre a categoria desejada, você pode criar uma nova categoria.
+             Caso não consiga categorizar a transação, retorne "Outros".
 
              Retorn apenas o nome da categoria.
              
@@ -173,3 +198,24 @@ def define_category(transaction_type, transaction_name):
     )
 
     return completion.choices[0].message.content
+
+def edit_transaction(id):
+    transaction = Transaction.query.get_or_404(id)
+    if request.method == 'POST':
+        transaction.name = request.form['name']
+        transaction.transaction_type = request.form['transaction_type']
+        transaction.category = request.form['category']
+        transaction.details = request.form['details']
+        transaction.expected_date = datetime.strptime(request.form['expected_date'], '%Y-%m-%d').date()
+        transaction.payday = datetime.strptime(request.form['payday'], '%Y-%m-%d').date()
+        transaction.recurrence = request.form['recurrence']
+        transaction.expected_value = float(request.form['expected_value'])
+        transaction.paid_value = float(request.form['paid_value'])
+        db.session.commit()
+        flash('Transaction updated successfully!', 'success')
+
+def delete_transaction(id):
+    transaction = Transaction.query.get_or_404(id)
+    db.session.delete(transaction)
+    db.session.commit()
+    flash('Transaction deleted successfully!', 'success')

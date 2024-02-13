@@ -1,9 +1,3 @@
-- Mudar o expected_date para aceitar valores null, para casos onde só estou projetando a transação
-- Mudar a cor das linhas para verde ou vermelho, de acordo com o valor da transação
-- Mostrar saldo
-- Colocar símbolo do Real
-- Colocar sinal do número automaticamente de acordo com o tipo da transação, mas não impôr
-- Sugerir categoria gerada por IA, mas não impôr
 
 1. Input transactions in a frontend, it could be:
     - Dedicated Front-end (react, vite, axios)
