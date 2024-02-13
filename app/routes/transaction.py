@@ -1,13 +1,9 @@
-from datetime import datetime
-
 from .. import app
+from .. import filters
+
 from flask import render_template, redirect, url_for
 
 from ..services.transaction import get_month_transactions, insert_transaction
-
-@app.template_filter('formatdate')
-def format_date(value):
-    return value.strftime('%a, %d')
 
 @app.route('/')
 def index():

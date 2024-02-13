@@ -22,15 +22,26 @@ def get_month_transactions():
 def insert_transaction():
     if request.method == 'POST':
         name = request.form.get('name')
+        category = request.form.get('category')
         transaction_type = request.form.get('transaction_type')
         details = request.form.get('details')
         expected_date = datetime.strptime(request.form.get('expected_date'), '%Y-%m-%d')
-        payday = datetime.strptime(request.form.get('payday'), '%Y-%m-%d')
+        expected_date_str = request.form.get('payday')
+        if expected_date_str is not None:
+            expected_date = datetime.strptime(expected_date_str, '%Y-%m-%d')
+        else:
+            expected_date = None
+        payday_str = request.form.get('payday')
+        if payday_str is not None:
+            payday = datetime.strptime(payday_str, '%Y-%m-%d')
+        else:
+            payday = None
         recurrence = request.form.get('recurrence')
         expected_value = float(request.form.get('expected_value'))
         paid_value = float(request.form.get('paid_value'))
 
-        category = define_category(transaction_type, name)
+        if not category:
+            category = define_category(transaction_type, name)
 
         new_transaction = Transaction(
             name=name,
@@ -147,7 +158,8 @@ def define_category(transaction_type, transaction_name):
         temperature=0,
         messages=[
             {"role": "system", "content": f"""
-             Você vai receber uma transação e uma lista de categorias, escolha a categoria que melhor se encaixa na transação
+             Você vai receber uma transação e uma lista de categorias, escolha a categoria que melhor se encaixa na transação.
+             Caso não encontre a categoria desejada, você pode criar uma nova categoria.
 
              Retorn apenas o nome da categoria.
              
