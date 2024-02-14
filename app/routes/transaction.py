@@ -20,7 +20,7 @@ def edit(id):
     edit_transaction(id)
     return redirect(url_for('index'))
 
-@app.route('/delete_transaction/<int:id>', methods=['GET', 'POST'])
+@app.route('/delete/<int:id>', methods=['GET', 'POST'])
 def delete(id):
     delete_transaction(id)
     return redirect(url_for('index'))
