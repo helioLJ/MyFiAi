@@ -5,7 +5,9 @@ MyFi
 {% endblock %}
 
 {% block content %}
-{% include 'transactions_table_header.html' %}
-{% include 'transactions_table.html' %}
-{% include 'prev_next_buttons.html' %}
+{% include 'transactions/transactions_table_header.html' %}
+{% include 'transactions/transactions_table.html' %}
+{% include 'transactions/prev_next_buttons.html' %}
+{% include 'modals/add_transaction_modal.html' %}
+{% include 'modals/edit_transaction_modal.html' %}
 {% endblock %}
