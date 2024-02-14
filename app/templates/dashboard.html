@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+MyFi
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 p-4">
+    <div class="shadow-lg rounded-lg">
+        <img src="{{ url_for('static', filename='images/transaction_counts_by_category_and_type.png') }}" alt="Paid Value by Category" class="rounded-lg">
+    </div>
+    <div class="shadow-lg rounded-lg">
+        <img src="{{ url_for('static', filename='images/transaction_counts_by_category_and_type2.png') }}" alt="Transaction Counts by Category and Type" class="rounded-lg">
+    </div>
+    <div class="shadow-lg rounded-lg">
+        <img src="{{ url_for('static', filename='images/balance.png') }}" alt="Balance" class="rounded-lg">
+    </div>
+    <div class="shadow-lg rounded-lg">
+        <img src="{{ url_for('static', filename='images/Renda_pie_composition.png') }}" alt="Renda Pie Composition" class="rounded-lg">
+    </div>
+    <div class="shadow-lg rounded-lg">
+        <img src="{{ url_for('static', filename='images/Despesa_pie_composition.png') }}" alt="Despesa Pie Composition" class="rounded-lg">
+    </div>
+    <div class="shadow-lg rounded-lg">
+        <img src="{{ url_for('static', filename='images/Passivo_pie_composition.png') }}" alt="Passivo Pie Composition" class="rounded-lg">
+    </div>
+    <div class="shadow-lg rounded-lg">
+        <img src="{{ url_for('static', filename='images/Ativo_pie_composition.png') }}" alt="Ativo Pie Composition" class="rounded-lg">
+    </div>
+</div>
+{% endblock %}

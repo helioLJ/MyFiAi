@@ -25,11 +25,6 @@
                         <label for="paid_value" class="mb-2">Valor Pago <span class="text-red-500 text-sm"> *</span></label>
                         <input placeholder="R$ 29.90" type="number" id="paid_value" name="paid_value" step="0.01" required class="border-2 border-gray-300 p-2 rounded-md font-bold outline-none ">
                     </div>
-                    <div class="flex flex-col">
-                        <label for="category" class="mb-2">Categoria <span class="text-gray-500 text-sm"> (Categoria pode ser escolhida automaticamente)</span></label>
-                        <select id="category" name="category" class="border-2 border-gray-300 p-2 rounded-md">
-                        </select>
-                    </div>
                     <div class="flex items-center gap-4">
                         <label for="isProjected" class="">Transação projetada?</label>
                         <input type="checkbox" id="isProjected" name="isProjected" class="w-5 h-5">
@@ -53,6 +48,11 @@
                             <option value="Bimestral">Bimestral</option>
                             <option value="Trimestral">Trimestral</option>
                             <option value="Semestral">Semestral</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="category" class="mb-2">Categoria <span class="text-gray-500 text-sm"> (Categoria pode ser escolhida automaticamente)</span></label>
+                        <select id="category" name="category" class="border-2 border-gray-300 p-2 rounded-md">
                         </select>
                     </div>
                     <div class="flex flex-col">

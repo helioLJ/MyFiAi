@@ -56,12 +56,8 @@ def insert_transaction():
         expected_value = float(request.form.get('expected_value'))
         paid_value = float(request.form.get('paid_value'))
 
-        if transaction_type == 'Renda':
-            paid_value = abs(paid_value)
-            expected_value = abs(expected_value)
-        else:
-            paid_value = -abs(paid_value)
-            expected_value = -abs(expected_value)
+        paid_value = abs(paid_value)
+        expected_value = abs(expected_value)
 
         if not category:
             # category = define_category(transaction_type, name)

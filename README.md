@@ -1,9 +1,12 @@
-- [ ] Opção de baixar lista de transações do mês
-- [ ] Dashboards e gráficos com transações
+- [ ] Dashboard e gráficos com transações
+    - [x] Mathplotlib
+        - [ ] Adicionar Bar Label
+        - [ ] Separar por mês
+        - [ ] Adicionar Pie Plot para tipos de transação
 - [ ] Insights com IA
+- [ ] Opção de baixar lista de transações do mês
 - [ ] Chat com dados de transações
 - [ ] Desativar "Valor Pago" caso seja "Transação Projetada"
-
 
 1. Input transactions in a frontend, it could be:
     - Dedicated Front-end (react, vite, axios)
