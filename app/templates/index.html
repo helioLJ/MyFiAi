@@ -5,6 +5,7 @@ MyFi
 {% endblock %}
 
 {% block content %}
+<h3 class="prose prose-blue">{{ insigths|safe }}</h3>
 {% include 'transactions/transactions_table_header.html' %}
 {% include 'transactions/transactions_table.html' %}
 {% include 'transactions/prev_next_buttons.html' %}

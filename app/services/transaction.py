@@ -29,8 +29,30 @@ def get_month_transactions():
     paginated_transactions = transactions.paginate(page=page, per_page=per_page, error_out=False)
     next_url = url_for('index', page=paginated_transactions.next_num, month=month, sort=sort) if paginated_transactions.has_next else None
     prev_url = url_for('index', page=paginated_transactions.prev_num, month=month, sort=sort) if paginated_transactions.has_prev else None
-    return paginated_transactions.items, next_url, prev_url, month
+    print(paginated_transactions.items)
+    insigths = give_insights(paginated_transactions.items)
+    return paginated_transactions.items, next_url, prev_url, month, insigths
 
+def give_insights(lista_de_transacoes_do_mes):
+    # completion = client.chat.completions.create(
+    #     model="gpt-3.5-turbo",
+    #     temperature=0,
+    #     messages=[
+    #         {"role": "system", "content": f"""
+    #          Você vai receber uma lista de transações do mês. Traga insights sobre finanças pessoais, onde eu mais gastei (despesa, passivo e ativo), onde eu mais ganhei (renda)... E dicas sobre como melhorar meu balanço mensal
+    #         """},
+    #         {"role": "user", "content": f"{lista_de_transacoes_do_mes}"}
+    #     ]
+    # )
+    
+    # result = completion.choices[0].message.content
+
+    # with open('resultado.txt', 'w') as file:
+        # file.write(result)
+    with open('resultado.txt', 'r') as file:
+        content = file.read()
+    return content
+    
 def insert_transaction():
     if request.method == 'POST':
         name = request.form.get('name')
