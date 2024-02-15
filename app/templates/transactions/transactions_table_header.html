@@ -23,6 +23,17 @@
                 <option value="{{ url_for('index', sort='expected_value') }}" {{ 'selected' if request.args.get('sort') == 'expected_value' else '' }}>Valor Esperado</option>
             </select>
         </div>
+
+        <div class="w-56">
+            <label for="transaction_type" class="block text-sm font-medium text-gray-700">Tipo de Transação</label>
+            <select id="transaction_type_filter" name="transaction_type" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onchange="location = this.value;">
+                <option value="{{ url_for('index') }}">Todos</option>
+                <option value="{{ url_for('index', transaction_type='Renda') }}" {{ 'selected' if request.args.get('transaction_type') == 'Renda' else '' }}>Renda</option>
+                <option value="{{ url_for('index', transaction_type='Despesa') }}" {{ 'selected' if request.args.get('transaction_type') == 'Despesa' else '' }}>Despesa</option>
+                <option value="{{ url_for('index', transaction_type='Ativo') }}" {{ 'selected' if request.args.get('transaction_type') == 'Ativo' else '' }}>Ativo</option>
+                <option value="{{ url_for('index', transaction_type='Passivo') }}" {{ 'selected' if request.args.get('transaction_type') == 'Passivo' else '' }}>Passivo</option>
+            </select>
+        </div>
     </div>
 
     <button id="openAddModalButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">

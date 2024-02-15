@@ -1,0 +1,45 @@
+<div class="p-6 flex gap-4">
+    <table class="w-1/2 table-auto">
+        <thead class="bg-gray-200">
+            <tr>
+                <th class="px-4 py-2">Origens</th>
+                <th class="px-4 py-2">Saldo Atual</th>
+                <th class="px-4 py-2">Saldo Projetado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="border px-4 py-2">Rendas</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Renda['Saldo Atual'] }}</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Renda['Saldo Projetado'] }}</td>
+            </tr>
+            <tr>
+                <td class="border px-4 py-2">Despesas</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Despesa['Saldo Atual'] }}</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Despesa['Saldo Projetado'] }}</td>
+            </tr>
+            <tr>
+                <td class="border px-4 py-2">Ativos</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Ativo['Saldo Atual'] }}</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Ativo['Saldo Projetado'] }}</td>
+            </tr>
+            <tr>
+                <td class="border px-4 py-2">Passivos</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Passivo['Saldo Atual'] }}</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Passivo['Saldo Projetado'] }}</td>
+            </tr>
+            <tr class="bg-gray-200 font-bold">
+                <td class="border px-4 py-2">Totais</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Total['Saldo Atual'] }}</td>
+                <td class="border px-4 py-2">R$ {{ balance_data.Total['Saldo Projetado'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="w-1/2 p-6 bg-white shadow-md rounded-lg">
+        <h2 class="text-xl font-bold mb-4">Insights do mês</h2>
+        <p class="text-gray-700">
+            Aqui você pode adicionar insights sobre finanças. Este é apenas um texto de exemplo, você pode substituí-lo pelo conteúdo real.
+        </p>
+    </div>
+</div>

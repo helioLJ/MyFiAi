@@ -9,7 +9,7 @@
                     </div>
                     <div class="flex flex-col">
                         <label for="transaction_type" class="mb-2">Tipo de Transação <span class="text-red-500 text-sm"> *</span></label>
-                        <select id="transaction_type" name="transaction_type" required class="border-2 border-gray-300 p-2 rounded-md">
+                        <select id="transaction_type_select" name="transaction_type" required class="border-2 border-gray-300 p-2 rounded-md">
                             <option value="">Selecione um tipo de transação</option>
                             <option value="Renda">Renda (Dinheiro entrando)</option>
                             <option value="Despesa">Despesa (Dinheiro saindo)</option>
@@ -22,16 +22,16 @@
                         <input placeholder="R$ 30" type="number" id="expected_value" name="expected_value" step="0.01" required class="border-2 border-gray-300 p-2 rounded-md font-bold outline-none ">
                     </div>
                     <div class="flex flex-col">
-                        <label for="paid_value" class="mb-2">Valor Pago <span class="text-red-500 text-sm"> *</span></label>
-                        <input placeholder="R$ 29.90" type="number" id="paid_value" name="paid_value" step="0.01" required class="border-2 border-gray-300 p-2 rounded-md font-bold outline-none ">
+                        <label for="expected_date" class="mb-2">Data Prevista<span class="text-gray-500 text-sm"> (Dia atual será escolhido automaticamente)</span></label>
+                        <input type="date" id="expected_date" name="expected_date" required class="border-2 border-gray-300 p-2 rounded-md">
                     </div>
                     <div class="flex items-center gap-4">
                         <label for="isProjected" class="">Transação projetada?</label>
                         <input type="checkbox" id="isProjected" name="isProjected" class="w-5 h-5">
                     </div>
                     <div class="flex flex-col">
-                        <label for="expected_date" class="mb-2">Data Prevista<span class="text-gray-500 text-sm"> (Dia atual será escolhido automaticamente)</span></label>
-                        <input type="date" id="expected_date" name="expected_date" required class="border-2 border-gray-300 p-2 rounded-md">
+                        <label for="paid_value" class="mb-2">Valor Pago <span class="text-red-500 text-sm"> *</span></label>
+                        <input placeholder="R$ 29.90" type="number" id="paid_value" name="paid_value" step="0.01" required class="border-2 border-gray-300 p-2 rounded-md font-bold outline-none ">
                     </div>
                     <div class="flex flex-col">
                         <label for="payday" class="mb-2">Dia do Pagamento<span class="text-gray-500 text-sm"> (Dia atual será escolhido automaticamente)</span></label>

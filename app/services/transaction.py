@@ -3,35 +3,93 @@ from datetime import datetime
 from flask import request, url_for, flash
 from sqlalchemy import asc, desc
 from openai import OpenAI
+from markdown import markdown
 
 from ..models import Transaction, db
 
 client = OpenAI()
 
-def get_month_transactions():
+def get_page_and_per_page():
     page = request.args.get('page', 1, type=int)
     per_page = 30  # Change this to the number of items you want per page
+    return page, per_page
+
+def get_month():
     month = request.args.get('month', datetime.now().month, type=int)
-    sort = request.args.get('sort', 'expected_date', type=str)
     if month is None:
         month = datetime.now().month
-    transactions = Transaction.query.filter(db.extract('month', Transaction.expected_date) == month)
-    if sort == 'transaction_type':
-        transactions = transactions.order_by(desc(Transaction.transaction_type))
-    elif sort == 'payday':
-        transactions = transactions.order_by(desc(Transaction.payday))
-    elif sort == 'expected_date':
-        transactions = transactions.order_by(Transaction.expected_date)
-    elif sort == 'paid_value':
-        transactions = transactions.order_by(desc(Transaction.paid_value))
-    elif sort == 'expected_value':
-        transactions = transactions.order_by(desc(Transaction.expected_value))
-    paginated_transactions = transactions.paginate(page=page, per_page=per_page, error_out=False)
+    return month
+
+def get_sort():
+    return request.args.get('sort', 'expected_date', type=str)
+
+def get_transaction_type():
+    return request.args.get('transaction_type', None, type=str)
+
+def filter_transactions_by_month(month):
+    return Transaction.query.filter(db.extract('month', Transaction.expected_date) == month)
+
+def filter_transactions_by_type(transactions, transaction_type):
+    if transaction_type is not None:
+        transactions = transactions.filter(Transaction.transaction_type == transaction_type)
+    return transactions
+
+def sort_transactions(transactions, sort):
+    sort_options = {
+        'transaction_type': lambda: transactions.order_by(desc(Transaction.transaction_type)),
+        'payday': lambda: transactions.order_by(desc(Transaction.payday)),
+        'expected_date': lambda: transactions.order_by(Transaction.expected_date),
+        'paid_value': lambda: transactions.order_by(desc(Transaction.paid_value)),
+        'expected_value': lambda: transactions.order_by(desc(Transaction.expected_value)),
+    }
+    return sort_options.get(sort, lambda: transactions)()
+
+def get_paginated_transactions(transactions, page, per_page):
+    return transactions.paginate(page=page, per_page=per_page, error_out=False)
+
+def get_balance_data():
+    types = ['Renda', 'Despesa', 'Ativo', 'Passivo']
+    data = {}
+
+    for t in types:
+        current_balance = db.session.query(db.func.sum(Transaction.paid_value)).filter(
+            Transaction.transaction_type == t
+        ).scalar() or 0
+
+        projected_balance = db.session.query(db.func.sum(Transaction.expected_value)).filter(
+            Transaction.transaction_type == t
+        ).scalar() or 0
+
+        data[t] = {'Saldo Atual': current_balance, 'Saldo Projetado': projected_balance}
+
+    total_current_balance = data['Renda']['Saldo Atual'] - data['Despesa']['Saldo Atual'] - data['Ativo']['Saldo Atual'] - data['Passivo']['Saldo Atual']
+    total_projected_balance = data['Renda']['Saldo Projetado'] - data['Despesa']['Saldo Projetado'] - data['Ativo']['Saldo Projetado'] - data['Passivo']['Saldo Projetado']
+
+    data['Total'] = {'Saldo Atual': total_current_balance, 'Saldo Projetado': total_projected_balance}
+
+    return data
+
+def get_month_transactions():
+    page, per_page = get_page_and_per_page()
+    month = get_month()
+    sort = get_sort()
+    transaction_type = get_transaction_type()
+    transactions = filter_transactions_by_month(month)
+    transactions = filter_transactions_by_type(transactions, transaction_type)
+    transactions = sort_transactions(transactions, sort)
+    paginated_transactions = get_paginated_transactions(transactions, page, per_page)
     next_url = url_for('index', page=paginated_transactions.next_num, month=month, sort=sort) if paginated_transactions.has_next else None
     prev_url = url_for('index', page=paginated_transactions.prev_num, month=month, sort=sort) if paginated_transactions.has_prev else None
-    print(paginated_transactions.items)
-    insigths = give_insights(paginated_transactions.items)
-    return paginated_transactions.items, next_url, prev_url, month, insigths
+    insights = give_insights(paginated_transactions.items)
+    balance_data = get_balance_data()
+    return {
+        'transactions': paginated_transactions.items,
+        'next_url': next_url,
+        'prev_url': prev_url,
+        'month': month,
+        'insights': markdown(insights),
+        'balance_data': balance_data
+    }
 
 def give_insights(lista_de_transacoes_do_mes):
     # completion = client.chat.completions.create(
