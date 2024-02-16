@@ -7,19 +7,35 @@ import matplotlib.ticker as ticker
 import pandas as pd
 import sqlalchemy as sql
 import numpy as np
+from flask_login import current_user
+from io import BytesIO
+import base64
+from config import Config
+
+
+def save_image_to_db(fig):
+    # Convert the figure to a PNG image
+    img = BytesIO()
+    fig.savefig(img, format='png')
+    img.seek(0)
+
+    # Convert the image data to a base64 string
+    img_base64 = base64.b64encode(img.read()).decode('utf-8')
+
+    # Close the figure
+    plt.close(fig)
+
+    return img_base64
 
 def get_dashboard_data():
-    # Define the path to your SQLite database file
-    database_file = 'sqlite:///myfi.db'
-
     # Create the SQLAlchemy engine
-    engine = sql.create_engine(database_file)
+    engine = sql.create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
-    # Fetch all transactions
-    query = db.session.query(Transaction)
+    # Fetch transactions for the current user
+    user_id = current_user.get_id()
+    query = db.session.query(Transaction).filter(Transaction.user_id == user_id)
     sql_query = str(query.statement.compile(engine))
-
-    transactions = pd.read_sql_query(sql_query, engine)
+    transactions = pd.read_sql_query(sql_query, engine, params={"user_id_1": user_id})
 
     # Get unique transaction types and categories
     transaction_types = transactions['transaction_type'].unique()
@@ -33,15 +49,17 @@ def get_dashboard_data():
         for category in categories:
             category_sums[category][i] = transactions[(transactions['transaction_type'] == transaction_type) & (transactions['category'] == category)]['paid_value'].sum()
 
-    get_bar_label(transaction_types, category_sums)
-    get_bar_label_input_vs_output(transactions)
-    get_bar_label_balance(transactions)
-    save_pie_chart('Renda', transactions)
-    save_pie_chart('Despesa', transactions)
-    save_pie_chart('Ativo', transactions)
-    save_pie_chart('Passivo', transactions)
+    images = {
+        'bar_label_img': get_bar_label(transaction_types, category_sums),
+        'bar_label_input_vs_output_img': get_bar_label_input_vs_output(transactions),
+        'bar_label_balance_img': get_bar_label_balance(transactions),
+        'renda_pie_chart_img': save_pie_chart('Renda', transactions),
+        'despesa_pie_chart_img': save_pie_chart('Despesa', transactions),
+        'ativo_pie_chart_img': save_pie_chart('Ativo', transactions),
+        'passivo_pie_chart_img': save_pie_chart('Passivo', transactions),
+    }
 
-    return
+    return images
 
 def get_bar_label(transaction_types, category_sums):
     width = 0.6  # the width of the bars: can also be len(x) sequence
@@ -62,10 +80,8 @@ def get_bar_label(transaction_types, category_sums):
 
     plt.show()
 
-    # Ensure the directory exists
-    os.makedirs('app/static/images', exist_ok=True)
-
-    plt.savefig('app/static/images/transaction_counts_by_category_and_type.png')
+    image = save_image_to_db(fig)
+    return image
 
 def get_bar_label_input_vs_output(transactions):
     fig, ax = plt.subplots()
@@ -123,10 +139,8 @@ def get_bar_label_input_vs_output(transactions):
 
     plt.show()
 
-    # Ensure the directory exists
-    os.makedirs('app/static/images', exist_ok=True)
-
-    plt.savefig('app/static/images/transaction_counts_by_category_and_type2.png')
+    image = save_image_to_db(fig)
+    return image
 
 def get_bar_label_balance(transactions):
     fig, ax = plt.subplots()
@@ -155,7 +169,7 @@ def get_bar_label_balance(transactions):
     for rect in p:
         height = rect.get_height()
         ax.text(rect.get_x() + rect.get_width() / 2., money_out + height,
-                'R$ {:.0f}'.format(money_out + height),
+                'R$ {:.0f}'.format(height),  # Use 'height' instead of 'money_out + height'
                 ha='center', va='bottom')
 
     ax.set_title('Saldo')
@@ -169,10 +183,8 @@ def get_bar_label_balance(transactions):
 
     plt.show()
 
-    # Ensure the directory exists
-    os.makedirs('app/static/images', exist_ok=True)
-
-    plt.savefig('app/static/images/balance.png')
+    image = save_image_to_db(fig)
+    return image
 
 def save_pie_chart(transaction_type, transactions):
     fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
@@ -187,8 +199,10 @@ def save_pie_chart(transaction_type, transactions):
     categories = category_totals.index
 
     def func(pct, allvals):
+        if np.isnan(pct) or np.isnan(np.sum(allvals)):
+            return 0
         absolute = int(np.round(pct/100.*np.sum(allvals)))
-        return f"{pct:.1f}%\n(R$ {absolute:d})"
+        return "{:.1f}%\n({:d} R$)".format(pct, absolute)
 
     wedges, texts, autotexts = ax.pie(data, autopct=lambda pct: func(pct, data),
                                       textprops=dict(color="w"))
@@ -202,9 +216,5 @@ def save_pie_chart(transaction_type, transactions):
 
     ax.set_title(f"Composição de transações ({transaction_type})")
 
-    # Ensure the directory exists
-    os.makedirs('app/static/images', exist_ok=True)
-
-    plt.savefig(f'app/static/images/{transaction_type}_pie_composition.png')
-
-    plt.close(fig)  # Close the figure
+    image = save_image_to_db(fig)
+    return image

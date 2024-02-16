@@ -1,11 +1,12 @@
 from datetime import datetime
 
-from flask import request, url_for, flash
-from sqlalchemy import asc, desc
+from flask import request, url_for, flash, abort
+from flask_login import current_user
+from sqlalchemy import asc, desc, cast, String
 from openai import OpenAI
 from markdown import markdown
 
-from ..models import Transaction, db
+from ..models import User, Transaction, Insight, db
 
 client = OpenAI()
 
@@ -27,7 +28,8 @@ def get_transaction_type():
     return request.args.get('transaction_type', None, type=str)
 
 def filter_transactions_by_month(month):
-    return Transaction.query.filter(db.extract('month', Transaction.expected_date) == month)
+    user_id = current_user.get_id()
+    return Transaction.query.filter(db.extract('month', Transaction.expected_date) == month, Transaction.user_id == user_id)
 
 def filter_transactions_by_type(transactions, transaction_type):
     if transaction_type is not None:
@@ -48,16 +50,17 @@ def get_paginated_transactions(transactions, page, per_page):
     return transactions.paginate(page=page, per_page=per_page, error_out=False)
 
 def get_balance_data():
+    user_id = current_user.get_id()
     types = ['Renda', 'Despesa', 'Ativo', 'Passivo']
     data = {}
 
     for t in types:
         current_balance = db.session.query(db.func.sum(Transaction.paid_value)).filter(
-            Transaction.transaction_type == t
+            Transaction.transaction_type == t, Transaction.user_id == user_id
         ).scalar() or 0
 
         projected_balance = db.session.query(db.func.sum(Transaction.expected_value)).filter(
-            Transaction.transaction_type == t
+            Transaction.transaction_type == t, Transaction.user_id == user_id
         ).scalar() or 0
 
         data[t] = {'Saldo Atual': current_balance, 'Saldo Projetado': projected_balance}
@@ -80,36 +83,100 @@ def get_month_transactions():
     paginated_transactions = get_paginated_transactions(transactions, page, per_page)
     next_url = url_for('index', page=paginated_transactions.next_num, month=month, sort=sort) if paginated_transactions.has_next else None
     prev_url = url_for('index', page=paginated_transactions.prev_num, month=month, sort=sort) if paginated_transactions.has_prev else None
-    insights = give_insights(paginated_transactions.items)
     balance_data = get_balance_data()
+    insights = give_insights(current_user.get_id(), balance_data, month)
     return {
         'transactions': paginated_transactions.items,
         'next_url': next_url,
         'prev_url': prev_url,
-        'month': month,
-        'insights': markdown(insights),
-        'balance_data': balance_data
+        'current_month': month,
+        'balance_data': balance_data,
+        'insights': markdown(insights)
     }
 
-def give_insights(lista_de_transacoes_do_mes):
-    # completion = client.chat.completions.create(
-    #     model="gpt-3.5-turbo",
-    #     temperature=0,
-    #     messages=[
-    #         {"role": "system", "content": f"""
-    #          Você vai receber uma lista de transações do mês. Traga insights sobre finanças pessoais, onde eu mais gastei (despesa, passivo e ativo), onde eu mais ganhei (renda)... E dicas sobre como melhorar meu balanço mensal
-    #         """},
-    #         {"role": "user", "content": f"{lista_de_transacoes_do_mes}"}
-    #     ]
-    # )
-    
-    # result = completion.choices[0].message.content
+def give_insights(user_id, balanco, month):
+    current_year = datetime.now().year
 
-    # with open('resultado.txt', 'w') as file:
-        # file.write(result)
-    with open('resultado.txt', 'r') as file:
-        content = file.read()
-    return content
+    insight = Insight.query.filter(Insight.user_id==user_id, Insight.month==month).first()
+    existing_insight = insight and insight.created_at.year == current_year
+
+    if existing_insight:
+        # Obtém o usuário
+        user = User.query.get(user_id)
+        if not user.is_premium: # Coloquei NOT para não ficar fazendo chamadas
+            # Se o usuário for premium, gera outro insight
+            completion = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                temperature=0,
+                messages=[
+                    {"role": "system", "content": f"""
+                     Você vai receber uma dicionário em Python com informações sobre finanças mensal de uma pessoa.
+
+                     Despesas, Ativos e Passivos são gastos, dinheiro saindo.
+                     Renda é dinheiro entrando.
+
+                     Gere insights sobre o balanço financeiro do usuário, como por exemplo, se ele está gastando mais do que ganha, se está economizando, se está investindo, se está endividado, etc.
+
+                     E traga soluções para os problemas encontrados.
+
+                     Retorne o texto dividido com tags HTML.
+                    """},
+                    {"role": "user", "content": f"{balanco}"}
+                ]
+            )
+
+            result = completion.choices[0].message.content
+
+            # Atualiza o insight existente
+            insight.text = result
+            insight.updated_at = datetime.now()
+
+            db.session.commit()
+
+            return result
+        else:
+            # Se o usuário não for premium, retorna o insight atual
+            return insight.text
+    else:
+        # Se não existir um insight com o mesmo mês e ano, cria um novo
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            temperature=0,
+            messages=[
+                {"role": "system", "content": f"""
+                Você vai receber uma dicionário em Python com informações sobre finanças mensal de uma pessoa.
+
+                Despesas, Ativos e Passivos são gastos, dinheiro saindo.
+                Renda é dinheiro entrando.
+
+                Gere insights sobre o balanço financeiro do usuário, como por exemplo, se ele está gastando mais do que ganha, se está economizando, se está investindo, se está endividado, etc.
+
+                E traga soluções para os problemas encontrados.
+
+                Retorne o texto dividido com tags HTML.
+                """},
+                {"role": "user", "content": f"{balanco}"}
+            ]
+        )
+
+        result = completion.choices[0].message.content
+
+        # Cria uma nova instância de Insight
+        insight = Insight(
+            month=month,
+            text=result,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            user_id=user_id
+        )
+
+        # Adiciona a instância de Insight à sessão do banco de dados
+        db.session.add(insight)
+
+        # Commit as alterações na sessão do banco de dados
+        db.session.commit()
+
+        return result
     
 def insert_transaction():
     if request.method == 'POST':
@@ -134,7 +201,10 @@ def insert_transaction():
 
         recurrence = request.form.get('recurrence')
         expected_value = float(request.form.get('expected_value'))
-        paid_value = float(request.form.get('paid_value'))
+        if request.form.get('paid_value') is None:
+            paid_value = 0
+        else:
+            paid_value = float(request.form.get('paid_value'))
 
         paid_value = abs(paid_value)
         expected_value = abs(expected_value)
@@ -152,7 +222,8 @@ def insert_transaction():
             recurrence=recurrence,
             expected_value=expected_value,
             paid_value=paid_value,
-            transaction_type=transaction_type
+            transaction_type=transaction_type,
+            user_id=current_user.get_id()
         )
 
         db.session.add(new_transaction)
@@ -277,6 +348,8 @@ def define_category(transaction_type, transaction_name):
 
 def edit_transaction(id):
     transaction = Transaction.query.get_or_404(id)
+    if transaction.user_id != current_user.get_id():
+        abort(403)  # HTTP status code for "Forbidden"
     if request.method == 'POST':
         transaction.name = request.form['name']
         transaction.transaction_type = request.form['transaction_type']
@@ -292,6 +365,8 @@ def edit_transaction(id):
 
 def delete_transaction(id):
     transaction = Transaction.query.get_or_404(id)
+    if transaction.user_id != current_user.get_id():
+        abort(403)  # HTTP status code for "Forbidden"
     db.session.delete(transaction)
     db.session.commit()
     flash('Transaction deleted successfully!', 'success')

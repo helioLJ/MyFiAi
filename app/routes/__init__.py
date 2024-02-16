@@ -1,3 +1,9 @@
-from . import transaction
-from . import dashboard
-from . import login
+from .transaction import init_transaction_routes
+from .dashboard import init_dashboard_routes
+from .login import init_login_routes
+from ..database import db
+
+def init_routes(app):
+    init_transaction_routes(app)
+    init_dashboard_routes(app)
+    init_login_routes(app, db)

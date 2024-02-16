@@ -21,8 +21,8 @@
                 <td class="px-6 py-4 whitespace-nowrap">{{ transaction.transaction_type }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ transaction.category }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ transaction.details }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.expected_date|formatdate }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.payday|formatdate }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.expected_date|format_date_func }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.payday|format_date_func }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">R$ {{ transaction.expected_value }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">R$ {{ transaction.paid_value }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ transaction.recurrence }}</td>

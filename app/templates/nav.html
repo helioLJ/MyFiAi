@@ -1,4 +1,4 @@
-<nav class="bg-blue-500 p-4 flex justify-center">
+<nav class="bg-blue-500 p-4 flex justify-between items-center">
     <ul class="flex space-x-4">
         <li class="text-white">
             <a href="{{ url_for('index') }}" class="hover:text-gray-200">Home</a>
@@ -7,4 +7,21 @@
             <a href="{{ url_for('dashboards') }}" class="hover:text-gray-200">Dashboards</a>
         </li>
     </ul>
+
+    <div class="flex items-center space-x-4">
+        {% if current_user.is_authenticated %}
+        <div class="text-white flex items-center space-x-2">
+            <img src="{{ current_user.profile_pic_url }}" alt="Profile Picture" class="rounded-full h-8 w-8">
+            <span>{{ current_user.name }}</span>
+        </div>
+
+        <div class="text-white">
+            <a href="{{ url_for('logout') }}" class="px-4 py-2 border border-white rounded hover:bg-white hover:text-gray-500">Logout</a>
+        </div>
+        {% else %}
+        <div class="text-white">
+            <a href="{{ url_for('login') }}" class="px-4 py-2 border border-white rounded hover:bg-white hover:text-blue-500">Login</a>
+        </div>
+        {% endif %}
+    </div>
 </nav>

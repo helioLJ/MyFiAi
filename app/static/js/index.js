@@ -12,7 +12,7 @@ var paidValueInput = document.getElementById('paid_value');
 var expectedValueInput = document.getElementById('expected_value');
 let expectedDateField = document.querySelector("#expected_date");
 let paydayField = document.querySelector("#payday");
-var transactionName = document.getElementById('name').value;
+var transactionName = document.getElementById('add_transaction_name');
 const categoryField = document.querySelector("#category");
 
 // Event listeners
@@ -40,6 +40,7 @@ function setDefaultDates() {
 
 function validateForm(event) {
     if (!transactionName || !transactionTypeSelect || !expectedValueInput || !paidValueInput) {
+        console.log(transactionName, transactionTypeSelect, expectedValueInput, paidValueInput)
         event.preventDefault();
         alert('Please fill out all fields.');
     }

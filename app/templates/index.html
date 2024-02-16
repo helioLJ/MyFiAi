@@ -3,7 +3,6 @@
 {% block title %}
 MyFi
 {% endblock %}
-<!-- <h3 class="prose prose-blue">{{ insigths|safe }}</h3> -->
 
 {% block content %}
 {% include 'balance_dashboard.html' %}
@@ -12,4 +11,5 @@ MyFi
 {% include 'transactions/prev_next_buttons.html' %}
 {% include 'modals/add_transaction_modal.html' %}
 {% include 'modals/edit_transaction_modal.html' %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}

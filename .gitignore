@@ -1,6 +1,7 @@
 # .gitignore
 
 .env
+docker-compose.yml
 
 # Python
 __pycache__/
