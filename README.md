@@ -4,10 +4,10 @@
         - [ ] Separar por mês
         - [x] Adicionar Pie Plot para tipos de transação
 - [x] Balance Table
-- [ ] User
-    - [ ] Criar Model (se prepara para receber Google OAuth)
-- [ ] Insights com IA
-    - [ ] Salvar e Relacionar com UserId (Permitir apenas 1 insight por semana, caso o usuário não seja premium)
+- [x] User
+    - [x] Criar Model (se prepara para receber Google OAuth)
+- [x] Insights com IA
+    - [x] Salvar e Relacionar com UserId (Permitir apenas 1 insight por semana, caso o usuário não seja premium)
 - [ ] Opção de baixar lista de transações do mês
 - [ ] Chat com dados de transações
 - [x] Desativar "Valor Pago" caso seja "Transação Projetada"
