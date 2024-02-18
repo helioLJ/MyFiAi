@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import request, url_for, flash, abort
 from flask_login import current_user
-from sqlalchemy import asc, desc, cast, String
+from sqlalchemy import desc, extract
 from openai import OpenAI
 from markdown import markdown
 
@@ -49,27 +49,39 @@ def sort_transactions(transactions, sort):
 def get_paginated_transactions(transactions, page, per_page):
     return transactions.paginate(page=page, per_page=per_page, error_out=False)
 
-def get_balance_data():
+def get_balance_data(month):
     user_id = current_user.get_id()
     types = ['Renda', 'Despesa', 'Ativo', 'Passivo']
     data = {}
 
     for t in types:
         current_balance = db.session.query(db.func.sum(Transaction.paid_value)).filter(
-            Transaction.transaction_type == t, Transaction.user_id == user_id
+            Transaction.transaction_type == t, 
+            Transaction.user_id == user_id,
+            extract('month', Transaction.payday) == month
         ).scalar() or 0
 
         projected_balance = db.session.query(db.func.sum(Transaction.expected_value)).filter(
-            Transaction.transaction_type == t, Transaction.user_id == user_id
+            Transaction.transaction_type == t, 
+            Transaction.user_id == user_id,
+            extract('month', Transaction.expected_date) == month
         ).scalar() or 0
 
-        data[t] = {'Saldo Atual': current_balance, 'Saldo Projetado': projected_balance}
+        data[t] = {'Valor Atual': current_balance, 'Valor Projetado': projected_balance}
 
-    total_current_balance = data['Renda']['Saldo Atual'] - data['Despesa']['Saldo Atual'] - data['Ativo']['Saldo Atual'] - data['Passivo']['Saldo Atual']
-    total_projected_balance = data['Renda']['Saldo Projetado'] - data['Despesa']['Saldo Projetado'] - data['Ativo']['Saldo Projetado'] - data['Passivo']['Saldo Projetado']
+    total_current_balance = data['Renda']['Valor Atual'] - data['Despesa']['Valor Atual'] - data['Ativo']['Valor Atual'] - data['Passivo']['Valor Atual']
+    total_projected_balance = data['Renda']['Valor Projetado'] - data['Despesa']['Valor Projetado'] - data['Ativo']['Valor Projetado'] - data['Passivo']['Valor Projetado']
 
-    data['Total'] = {'Saldo Atual': total_current_balance, 'Saldo Projetado': total_projected_balance}
+    data['Saldo'] = {'Saldo Atual': total_current_balance, 'Saldo Projetado': total_projected_balance}
+    
+    data['Despesa']['Valor Atual'] = -data['Despesa']['Valor Atual']
+    data['Despesa']['Valor Projetado'] = -data['Despesa']['Valor Projetado']
 
+    data['Ativo']['Valor Atual'] = -data['Ativo']['Valor Atual']
+    data['Ativo']['Valor Projetado'] = -data['Ativo']['Valor Projetado']
+
+    data['Passivo']['Valor Atual'] = -data['Passivo']['Valor Atual']
+    data['Passivo']['Valor Projetado'] = -data['Passivo']['Valor Projetado']
     return data
 
 def get_month_transactions():
@@ -83,7 +95,7 @@ def get_month_transactions():
     paginated_transactions = get_paginated_transactions(transactions, page, per_page)
     next_url = url_for('index', page=paginated_transactions.next_num, month=month, sort=sort) if paginated_transactions.has_next else None
     prev_url = url_for('index', page=paginated_transactions.prev_num, month=month, sort=sort) if paginated_transactions.has_prev else None
-    balance_data = get_balance_data()
+    balance_data = get_balance_data(month)
     insights = give_insights(current_user.get_id(), balance_data, month)
     return {
         'transactions': paginated_transactions.items,
@@ -103,21 +115,23 @@ def give_insights(user_id, balanco, month):
     if existing_insight:
         # Obtém o usuário
         user = User.query.get(user_id)
-        if not user.is_premium: # Coloquei NOT para não ficar fazendo chamadas
+        if user.is_premium: # Coloquei NOT para não ficar fazendo chamadas
+
             # Se o usuário for premium, gera outro insight
             completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 temperature=0,
                 messages=[
                     {"role": "system", "content": f"""
-                     Você vai receber uma dicionário em Python com informações sobre finanças mensal de uma pessoa.
+                     Você vai receber uma dicionário em Python com informações sobre balanço mensal de uma pessoa.
 
-                     Despesas, Ativos e Passivos são gastos, dinheiro saindo.
-                     Renda é dinheiro entrando.
+                     Despesas, Ativos e Passivos significa dinheiro que saiu.
+                     Renda significa dinheiro que entrou.
 
                      Gere insights sobre o balanço financeiro do usuário, como por exemplo, se ele está gastando mais do que ganha, se está economizando, se está investindo, se está endividado, etc.
 
                      E traga soluções para os problemas encontrados.
+                     Se comunique como se estivesse falando com o usuário dono do balanço.
 
                      Retorne o texto dividido com tags HTML.
                     """},
@@ -144,14 +158,15 @@ def give_insights(user_id, balanco, month):
             temperature=0,
             messages=[
                 {"role": "system", "content": f"""
-                Você vai receber uma dicionário em Python com informações sobre finanças mensal de uma pessoa.
+                Você vai receber uma dicionário em Python com informações sobre balanço mensal de uma pessoa.
 
-                Despesas, Ativos e Passivos são gastos, dinheiro saindo.
-                Renda é dinheiro entrando.
+                Despesas, Ativos e Passivos significa dinheiro que saiu.
+                Renda significa dinheiro que entrou.
 
                 Gere insights sobre o balanço financeiro do usuário, como por exemplo, se ele está gastando mais do que ganha, se está economizando, se está investindo, se está endividado, etc.
 
                 E traga soluções para os problemas encontrados.
+                Se comunique como se estivesse falando com o usuário dono do balanço.
 
                 Retorne o texto dividido com tags HTML.
                 """},
@@ -170,7 +185,7 @@ def give_insights(user_id, balanco, month):
             user_id=user_id
         )
 
-        # Adiciona a instância de Insight à sessão do banco de dados
+        # Adiciona a instância de Insight à sessão do banco de balanco
         db.session.add(insight)
 
         # Commit as alterações na sessão do banco de dados

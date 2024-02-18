@@ -7,36 +7,36 @@
                 <th class="px-4 py-2">Saldo Projetado</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="bg-gray-300">
             <tr>
                 <td class="border px-4 py-2">Rendas</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Renda['Saldo Atual'] }}</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Renda['Saldo Projetado'] }}</td>
-            </tr>
-            <tr>
-                <td class="border px-4 py-2">Despesas</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Despesa['Saldo Atual'] }}</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Despesa['Saldo Projetado'] }}</td>
+                <td class="border px-4 py-2 text-2xl text-emerald-500 font-semibold">R$ {{ balance_data.Renda['Valor Atual'] }}</td>
+                <td class="border px-4 py-2 text-2xl text-emerald-500 font-semibold">R$ {{ balance_data.Renda['Valor Projetado'] }}</td>
             </tr>
             <tr>
                 <td class="border px-4 py-2">Ativos</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Ativo['Saldo Atual'] }}</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Ativo['Saldo Projetado'] }}</td>
+                <td class="border px-4 py-2 text-2xl text-sky-500 font-semibold">R$ {{ balance_data.Ativo['Valor Atual'] }}</td>
+                <td class="border px-4 py-2 text-2xl text-sky-500 font-semibold">R$ {{ balance_data.Ativo['Valor Projetado'] }}</td>
+            </tr>
+            <tr>
+                <td class="border px-4 py-2">Despesas</td>
+                <td class="border px-4 py-2 text-2xl text-rose-500 font-semibold">R$ {{ balance_data.Despesa['Valor Atual'] }}</td>
+                <td class="border px-4 py-2 text-2xl text-rose-500 font-semibold">R$ {{ balance_data.Despesa['Valor Projetado'] }}</td>
             </tr>
             <tr>
                 <td class="border px-4 py-2">Passivos</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Passivo['Saldo Atual'] }}</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Passivo['Saldo Projetado'] }}</td>
+                <td class="border px-4 py-2 text-2xl text-rose-500 font-semibold">R$ {{ balance_data.Passivo['Valor Atual'] }}</td>
+                <td class="border px-4 py-2 text-2xl text-rose-500 font-semibold">R$ {{ balance_data.Passivo['Valor Projetado'] }}</td>
             </tr>
             <tr class="bg-gray-200 font-bold">
                 <td class="border px-4 py-2">Totais</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Total['Saldo Atual'] }}</td>
-                <td class="border px-4 py-2">R$ {{ balance_data.Total['Saldo Projetado'] }}</td>
+                <td class="border px-4 py-2 text-3xl">R$ {{ balance_data.Saldo['Saldo Atual'] }}</td>
+                <td class="border px-4 py-2 text-3xl">R$ {{ balance_data.Saldo['Saldo Projetado'] }}</td>
             </tr>
         </tbody>
     </table>
 
-    <div class="w-1/2 p-6 bg-white shadow-md rounded-lg h-[450px] overflow-y-auto">
+    <div class="w-1/2 p-6 bg-white shadow-md rounded-lg h-[350px] overflow-y-auto">
         <h2 class="text-xl font-bold mb-4">Insights do mês</h2>
         <div class="text-gray-700 space-y-2">
             {{ insights|safe|default("Adicione no mínimo 10 transações para gerar insights.") }}
