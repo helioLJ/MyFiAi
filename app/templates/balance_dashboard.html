@@ -37,7 +37,14 @@
     </table>
 
     <div class="w-1/2 p-6 bg-white shadow-md rounded-lg h-[350px] overflow-y-auto">
-        <h2 class="text-xl font-bold mb-4">Insights do mês</h2>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Insights do mês</h2>
+            <form id="insightForm" method="post">
+                <button type="submit" class="{{ 'bg-blue-500 hover:bg-blue-700' if can_generate_insight else 'bg-gray-500 cursor-not-allowed' }} text-white font-bold py-2 px-4 rounded" {{ 'disabled' if not can_generate_insight }}>
+                    Gerar Insight
+                </button>
+            </form>
+        </div>
         <div class="text-gray-700 space-y-2">
             {{ insights|safe|default("Adicione no mínimo 10 transações para gerar insights.") }}
         </div>

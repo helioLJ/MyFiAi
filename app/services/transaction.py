@@ -96,47 +96,60 @@ def get_month_transactions():
     next_url = url_for('index', page=paginated_transactions.next_num, month=month, sort=sort) if paginated_transactions.has_next else None
     prev_url = url_for('index', page=paginated_transactions.prev_num, month=month, sort=sort) if paginated_transactions.has_prev else None
     balance_data = get_balance_data(month)
-    insights = give_insights(current_user.get_id(), balance_data, month)
+    insights, can_generate_insight = give_insights(current_user.get_id(), month)
     return {
         'transactions': paginated_transactions.items,
         'next_url': next_url,
         'prev_url': prev_url,
         'current_month': month,
         'balance_data': balance_data,
-        'insights': markdown(insights)
+        'insights': markdown(insights),
+        'can_generate_insight': can_generate_insight,
     }
 
-def give_insights(user_id, balanco, month):
+def give_insights(user_id, month):
+    insight = Insight.query.filter(Insight.user_id==user_id, Insight.month==month).first()
+    current_year = datetime.now().year
+    existing_insight = insight and insight.created_at.year == current_year
+    user = User.query.get(user_id)
+    can_generate_insight = user.is_premium or not existing_insight
+    text = insight.text if existing_insight else "Adicione no mínimo 10 transações para gerar insights."
+    return text, can_generate_insight
+    
+def generate_insight():
+    month = get_month()
+    balanco = get_balance_data(month)
+
+    messages = [
+                {"role": "system", "content": f"""
+                    Você vai receber uma dicionário em Python com informações sobre balanço mensal de uma pessoa.
+
+                    Despesas, Ativos e Passivos significa dinheiro que saiu.
+                    Renda significa dinheiro que entrou.
+
+                    Gere insights sobre o balanço financeiro do usuário, como por exemplo, se ele está gastando mais do que ganha, se está economizando, se está investindo, se está endividado, etc.
+
+                    E traga soluções para os problemas encontrados.
+                    Se comunique como se estivesse falando com o usuário dono do balanço.
+
+                    Retorne o texto dividido com tags HTML.
+                """},
+                {"role": "user", "content": f"{balanco}"}
+            ]
     current_year = datetime.now().year
 
-    insight = Insight.query.filter(Insight.user_id==user_id, Insight.month==month).first()
     existing_insight = insight and insight.created_at.year == current_year
 
     if existing_insight:
         # Obtém o usuário
-        user = User.query.get(user_id)
+        user = User.query.get(current_user.get_id())
         if user.is_premium: # Coloquei NOT para não ficar fazendo chamadas
 
             # Se o usuário for premium, gera outro insight
             completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 temperature=0,
-                messages=[
-                    {"role": "system", "content": f"""
-                     Você vai receber uma dicionário em Python com informações sobre balanço mensal de uma pessoa.
-
-                     Despesas, Ativos e Passivos significa dinheiro que saiu.
-                     Renda significa dinheiro que entrou.
-
-                     Gere insights sobre o balanço financeiro do usuário, como por exemplo, se ele está gastando mais do que ganha, se está economizando, se está investindo, se está endividado, etc.
-
-                     E traga soluções para os problemas encontrados.
-                     Se comunique como se estivesse falando com o usuário dono do balanço.
-
-                     Retorne o texto dividido com tags HTML.
-                    """},
-                    {"role": "user", "content": f"{balanco}"}
-                ]
+                messages=messages
             )
 
             result = completion.choices[0].message.content
@@ -156,22 +169,7 @@ def give_insights(user_id, balanco, month):
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             temperature=0,
-            messages=[
-                {"role": "system", "content": f"""
-                Você vai receber uma dicionário em Python com informações sobre balanço mensal de uma pessoa.
-
-                Despesas, Ativos e Passivos significa dinheiro que saiu.
-                Renda significa dinheiro que entrou.
-
-                Gere insights sobre o balanço financeiro do usuário, como por exemplo, se ele está gastando mais do que ganha, se está economizando, se está investindo, se está endividado, etc.
-
-                E traga soluções para os problemas encontrados.
-                Se comunique como se estivesse falando com o usuário dono do balanço.
-
-                Retorne o texto dividido com tags HTML.
-                """},
-                {"role": "user", "content": f"{balanco}"}
-            ]
+            messages=messages
         )
 
         result = completion.choices[0].message.content
@@ -182,7 +180,7 @@ def give_insights(user_id, balanco, month):
             text=result,
             created_at=datetime.now(),
             updated_at=datetime.now(),
-            user_id=user_id
+            user_id=current_user.get_id()
         )
 
         # Adiciona a instância de Insight à sessão do banco de balanco
@@ -192,7 +190,7 @@ def give_insights(user_id, balanco, month):
         db.session.commit()
 
         return result
-    
+
 def insert_transaction():
     if request.method == 'POST':
         name = request.form.get('name')
