@@ -1,11 +1,9 @@
-# login.py
 from flask import redirect, url_for, render_template
 from flask_login import login_user, logout_user, login_required
 from authlib.integrations.flask_client import OAuth
 from ..models import User
-from config import Config  # Importação absoluta
+from config import Config
 
-# Resto do código...
 
 def init_login_routes(app, db):
     # Configuração do OAuth
